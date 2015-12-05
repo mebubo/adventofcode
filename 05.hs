@@ -33,7 +33,7 @@ satisfiesAllConditions :: [String -> Bool] -> String -> Bool
 satisfiesAllConditions fs ss = all (==True) $ map (\f -> f ss) fs
 
 countNice :: (String -> Bool) -> [String] -> Int
-countNice f = length . filter (==True) . map f
+countNice f = length . filter f
   
 isNice :: String -> Bool
 isNice = satisfiesAllConditions

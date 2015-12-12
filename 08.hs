@@ -21,7 +21,22 @@ replaceEscapeSequences all@('\\' : 'x'  : a : b : xs) = if (isHexDigit a && isHe
                                                         else (head all) : replaceEscapeSequences (tail all)
 replaceEscapeSequences (x:xs) = x : replaceEscapeSequences xs
 
+quote :: String -> String
+quote [] = []
+quote ('"' : xs) = "\\\"" ++ quote xs
+quote ('\\' : xs) = "\\\\" ++ quote xs
+quote (x : xs) = x : quote xs
+
+addParens :: String -> String
+addParens xs = "\"" ++ xs ++ "\""
+
+encodeString :: String -> String
+encodeString = addParens . quote
+
+diff2 ls = (countCharacters $ map encodeString ls) - (countCharacters ls)
+
 main = do
   input <- getContents
-  print $ diff $ lines input
+  -- print $ diff $ lines input
+  print $ diff2 $ lines input
 

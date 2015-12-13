@@ -10,7 +10,7 @@ readString :: String -> String
 readString = replaceEscapeSequences . stripQuotes
 
 stripQuotes :: String -> String
-stripQuotes xs = drop 1 $ take (length xs - 1) xs
+stripQuotes xs = tail $ init xs
 
 replaceEscapeSequences :: String -> String
 replaceEscapeSequences "" = ""

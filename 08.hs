@@ -37,6 +37,5 @@ diff2 ls = (countCharacters $ map encodeString ls) - (countCharacters ls)
 
 main = do
   input <- getContents
-  -- print $ diff $ lines input
+  print $ diff $ lines input
   print $ diff2 $ lines input
-

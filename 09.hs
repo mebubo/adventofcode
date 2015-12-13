@@ -39,5 +39,6 @@ allRouteLengths m = map (routeLength m) (permutations $ cities m)
 main = do
   input <- getContents
   let m = readInput $ lines input
-  print $ minimum $ allRouteLengths m
-  print $ maximum $ allRouteLengths m
+      lengths = allRouteLengths m
+  print $ minimum $ lengths
+  print $ maximum $ lengths

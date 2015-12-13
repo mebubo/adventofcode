@@ -2,7 +2,7 @@ import Data.List (isInfixOf)
 import qualified Data.Map.Strict as Map
 
 containsNOf :: Eq a=> Int -> [a] -> [a] -> Bool
-containsNOf n ys xs = (>=n) $ sum $ map length $ map (\y -> filter (==y) xs) ys
+containsNOf n ys xs = (>=n) $ length $ filter (`elem` xs) ys
 
 doesNotContainAnyOf :: Eq a => [[a]] -> [a] -> Bool
 doesNotContainAnyOf yss xs = all id $ map (\ys -> not $ ys `isInfixOf` xs) yss

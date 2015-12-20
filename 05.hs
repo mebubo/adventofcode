@@ -30,7 +30,7 @@ containsNonOverlappingSublistsOfLength n =
     fartherstOccurences = map (\xs -> abs $ (last xs) - (head xs))
 
 satisfiesAllConditions :: [String -> Bool] -> String -> Bool
-satisfiesAllConditions fs ss = all (==True) $ map (\f -> f ss) fs
+satisfiesAllConditions fs ss = all (\f -> f ss) fs
 
 countNice :: (String -> Bool) -> [String] -> Int
 countNice f = length . filter f

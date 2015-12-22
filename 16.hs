@@ -33,10 +33,11 @@ readAunt :: String -> [(String, Int)]
 readAunt =
   toPairs . words . filtered
   where
-    filtered = filter (\c -> c `notElem` ":,")
+    filtered = filter (`notElem` ":,")
     toPairs :: [String] -> [(String, Int)]
     toPairs [] = []
     toPairs (x:y:ys) = (x, read y) : toPairs ys
+    toPairs _ = error "Incorrect aunt format"
 
 isMatchingAunt :: Tape -> [(String, Int)] -> Bool
 isMatchingAunt t = all f
@@ -44,11 +45,12 @@ isMatchingAunt t = all f
                    f :: (String, Int) -> Bool
                    f (s, i) = case Data.Map.lookup s t of
                               Nothing -> True
-                              Just f -> f i
+                              Just f' -> f' i
 
 showAunt :: [(String, Int)] -> String
 showAunt = show . snd . head
 
+main :: IO ()
 main = do
   input <- getContents
   let solve tape = map showAunt . filter (isMatchingAunt tape) . map readAunt . lines

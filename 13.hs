@@ -20,7 +20,11 @@ circularPermutations (x:xs) = map (x:) $ permutations xs
 type Prefs = Map (String, String) Int
 
 pairCost :: Prefs -> (String, String) -> Int
-pairCost p (a, b) = p ! (a, b) + p ! (b, a)
+pairCost p (a, b) = p `lookupPref` (a, b) + p `lookupPref` (b, a)
+
+lookupPref :: Prefs -> (String, String) -> Int
+lookupPref p (a, b) | a == "me" || b == "me" = 0
+                | otherwise = p ! (a, b)
 
 arrangementCost :: Prefs -> [String] -> Int
 arrangementCost p = sum . map (pairCost p) . neighbours
@@ -28,8 +32,8 @@ arrangementCost p = sum . map (pairCost p) . neighbours
 guests :: Prefs -> [String]
 guests = S.toList . S.fromList . map fst . keys
 
-solution :: Prefs -> Int
-solution prefs = maximum . map (arrangementCost prefs) . circularPermutations . guests $ prefs
+solution :: [String] -> Prefs -> Int
+solution gs prefs = maximum . map (arrangementCost prefs) . circularPermutations $ gs
 
 readPrefs :: [String] -> Prefs
 readPrefs = fromList . map readPreference
@@ -37,4 +41,5 @@ readPrefs = fromList . map readPreference
 main = do
   input <- getContents
   let prefs = readPrefs $ lines input
-  print $ solution prefs
+  print $ solution (guests prefs) prefs
+  print $ solution ("me":guests prefs) prefs

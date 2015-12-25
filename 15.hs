@@ -31,15 +31,16 @@ recipeSize = 100
 type Scoring = [Ingredient] -> [Recipe] -> [Int]
 
 scores1 :: Scoring
-scores1 ingredients = map (recipeScore limit ingredients)
+scores1 ingredients = map (recipeScore ignoreCalories ingredients)
   where
-    limit i = take (length i - 1) i
+    ignoreCalories i = take (length i - 1) i
     
 scores2 :: Scoring
 scores2 ingredients recipes = scores1 ingredients $ filter (calories 500) recipes
   where
     calories :: Int -> Recipe -> Bool
-    calories n r = n == recipeScore ((:[]) . last) ingredients r
+    calories n = (n==) . recipeScore onlyCalories ingredients
+    onlyCalories = (:[]) . last
 
 solution :: Scoring -> [Ingredient] -> [Recipe] -> Int
 solution scores ingredients = maximum . scores ingredients

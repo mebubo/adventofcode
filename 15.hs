@@ -31,18 +31,33 @@ allRecipes n = uniq . concatMap permutations . nPartition n
 readIngredient :: String -> [Int]
 readIngredient xs = map read . getAllTextMatches $ xs =~ "-?[[:digit:]]+"
 
-recipeScore :: Int -> [Ingredient] -> Recipe -> Int
-recipeScore n ingredients recipe = product . map sumIngredient . transpose $ limit ingredients
+recipeScore :: (Ingredient -> Ingredient) -> [Ingredient] -> Recipe -> Int
+recipeScore ingredientsFilter ingredients recipe = product . map sumIngredient . transpose $ map ingredientsFilter ingredients
   where
     sumIngredient = zeroIfNegative . sum . zipWith (*) recipe
     zeroIfNegative x = if x < 0 then 0 else x
-    limit = map $ take n
 
 recipeSize = 100
 
-solution :: Int -> [Ingredient] -> Int
-solution n ingredients = maximum . map (recipeScore n ingredients) $ allRecipes (length ingredients) recipeSize
+type Scoring = [Ingredient] -> [Recipe] -> [Int]
+
+scores1 :: Scoring
+scores1 ingredients = map (recipeScore limit ingredients)
+  where
+    limit i = take (length i - 1) i
+    
+scores2 :: Scoring
+scores2 ingredients recipes = scores1 ingredients $ filter (calories 500) recipes
+  where
+    calories :: Int -> Recipe -> Bool
+    calories n r = n == recipeScore ((:[]) . last) ingredients r
+
+solution :: Scoring -> [Ingredient] -> [Recipe] -> Int
+solution scores ingredients = maximum . scores ingredients
 
 main = do
   input <- getContents
-  print $ solution 4 $ map readIngredient $ lines input
+  let ingredients = map readIngredient $ lines input
+      recipes = allRecipes (length ingredients) recipeSize
+  print $ solution scores1 ingredients recipes
+  print $ solution scores2 ingredients recipes

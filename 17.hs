@@ -5,6 +5,13 @@ combinations 0 _ = [[]]
 combinations _ [] = []
 combinations n (x:xs) = combinations n xs ++ if n >= x then map (x:) (combinations (n-x) xs) else []
 
+minimumLength :: [[a]] -> [[a]]
+minimumLength xs = filter (\ys -> length ys == m) xs
+  where m = minimum . map length $ xs
+
 main = do
   input <- getContents
-  print . length . combinations 150 . map read . lines $ input
+  let containers = map read . lines $ input
+      matches = combinations 150 containers
+  print . length $ matches
+  print . length . minimumLength $ matches

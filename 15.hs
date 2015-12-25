@@ -4,19 +4,8 @@ import Data.Set (fromList, toList)
 import Data.List (permutations, transpose)
 import Text.Regex.Posix
 
-applyToEach :: (Int -> Int) -> [Int] -> [[Int]]
-applyToEach _ [] = []
-applyToEach f (x:xs) = (f x:xs) : map (x:) (applyToEach f xs)
-
 uniq :: Ord a => [a] -> [a]
 uniq = toList . fromList
-
-splitSum :: Int -> Int -> [[Int]]
-splitSum n x | n < 0 || x < 0 = error "Negative arguments"
-splitSum n 0 = [replicate n 0]
-splitSum n x =
-  let sub = splitSum n (x-1)
-  in uniq . concatMap (applyToEach (+1)) $ sub
 
 nPartition :: Int -> Int -> [[Int]]
 nPartition 1 x = [[x]]

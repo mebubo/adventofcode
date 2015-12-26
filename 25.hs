@@ -22,7 +22,13 @@ valueForCoord coord = values !! count
 valueForCoord2 :: (Int, Int) -> Int
 valueForCoord2 coord = snd . head . filter ((==coord) . fst) $ zip cellOrder values
 
+valueForCoord3 :: (Int, Int) -> Int
+valueForCoord3 (r, c) = iter $ zip cellOrder values
+  where
+    iter (((r', c'), z):rest) | r == r' && c == c' = z
+                              | otherwise = r' `seq` c' `seq` z `seq` (iter rest)
+
 main = do
   input <- getContents
   let [r, c] = map (read::(String -> Int)) . getAllTextMatches $ input =~ "[[:digit:]]+"
-  print $ valueForCoord2 (r, c)
+  print $ valueForCoord3 (r, c)

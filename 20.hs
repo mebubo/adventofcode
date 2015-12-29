@@ -1,16 +1,30 @@
-module Day20 where
+isqrt :: Int -> Int
+isqrt = floor . sqrt . fromIntegral
 
-import Data.List
+factors :: Int -> [Int]
+factors n = [x | x <- [1..(isqrt n)], n `mod` x == 0]
 
-elfs :: [[Int]]
-elfs = [[if h `mod` e == 0 then 10*e else 0 | h <- [1..]] | e <- [1..]]
+allFactors :: Int -> [Int]
+allFactors n =
+  let
+    sf = factors n
+    biggest = last sf
+    nextToBiggest = n `div` biggest
+    toSkip = if biggest == nextToBiggest then 1 else 0
+    bf = drop toSkip [n `div` x | x <- reverse sf]
+  in
+    sf ++ bf
 
-houses = transpose elfs
+houseScore = (10*) . sum . allFactors
 
-housePoints = map (sum . uncurry take) $  zip [1..] houses
+houseScore2 :: Int -> Int -> Int
+houseScore2 max' n = (11*) . sum . filter ((<=max') . (n `div`)) $ allFactors n
 
-input = 29000
+matchingHouse :: (Int -> Int) -> Int -> Int
+matchingHouse scoring i = fst . head . dropWhile ((<i) . snd) $ zip [1..] $ map scoring [1..]
 
-matchingHouse = fst . head . dropWhile ((<input) . snd) $ zip [1..] housePoints
-
-main = print matchingHouse
+main = do
+  input <- getContents
+  let i = read input
+  print $ matchingHouse houseScore i
+  print $ matchingHouse (houseScore2 50) i

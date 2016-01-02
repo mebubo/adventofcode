@@ -26,6 +26,17 @@ readMolecule = last
 uniq :: Ord a => [a] -> [a]
 uniq = toList . fromList
 
+reverseSubsts:: [(String, String)] -> [(String, String)]
+reverseSubsts = map (\(a, b) -> (b, a))
+
+chainReplacements :: [(String, String)] -> [String] -> [[String]]
+chainReplacements substs seed =
+    let a = uniq $ concatMap (allReplacements substs) seed
+     in a : chainReplacements substs a
+
+stepsTo :: [(String, String)] -> String -> String -> Int
+stepsTo substs start finish = (+1) . length . takeWhile (not . (finish `elem`)) $ chainReplacements substs [start]
+
 main = do
     input <- getContents
     let ls = lines input
@@ -33,3 +44,4 @@ main = do
         mol = readMolecule ls
         result = uniq $ allReplacements substs mol
     print $ length result
+    -- print $ stepsTo (reverseSubsts substs) mol "e"

@@ -1,41 +1,29 @@
-intersperse :: a -> [a] -> [[a]]
-intersperse x [] = [[x]]
-intersperse x (y:ys) = (x:y:ys) : map (y:) (intersperse x ys)
+import Data.List (tails)
 
-permutations :: [a] -> [[a]]
-permutations [] = [[]]
-permutations (x:xs) = concatMap (intersperse x) (permutations xs)
+combinationsOfLength :: Int -> [a] -> [[a]]
+combinationsOfLength 0 _ = [[]]
+combinationsOfLength _ [] = []
+combinationsOfLength n xs = [ y:zs | (y:ys) <- tails xs, zs <- combinationsOfLength (n-1) ys ]
 
-partitionInN :: Int -> [a] -> [[[a]]]
-partitionInN _ [] = []
-partitionInN 1 xs = [[xs]]
-partitionInN n (x:xs) = map ([x]:) (partitionInN (n-1) xs) ++ concatMap (insert x) (partitionInN n xs)
+allCombinations :: [a] -> [[a]]
+allCombinations xs = concatMap (\n -> combinationsOfLength n xs) [1..]
 
-insert :: a -> [[a]] -> [[[a]]]
-insert x [] = []
-insert x (ys:yss) = ((x:ys):yss) : map (ys:) (insert x yss)
+combinationsSummingUpTo :: Int -> [[Int]] -> [[Int]]
+combinationsSummingUpTo n = filter ((==n) . sum)
 
-isBalanced :: [[Int]] -> Bool
-isBalanced xs = all (==(head sums)) $ sums
-    where sums = map sum xs
+shortestCombinations :: [[a]] -> [[a]]
+shortestCombinations (x:xs) = takeWhile ((==(length x)) . length) (x:xs)
 
-firstGroupSize :: [[a]] -> Int
-firstGroupSize = length . head
+minimumEntanglement :: [[Int]] -> Int
+minimumEntanglement = minimum . map product
 
-shortestFirstGroupsOnly :: [[[a]]] -> [[[a]]]
-shortestFirstGroupsOnly xs =
-    let minSize = minimum $ map firstGroupSize xs
-     in filter ((==minSize) . firstGroupSize) xs
-
-minimumEntanglement :: [[[Int]]] -> Int
-minimumEntanglement = minimum . map (product . head)
+solve :: Int -> [Int] -> Int
+solve n = minimumEntanglement . shortestCombinations . combinationsSummingUpTo n . allCombinations
 
 main = do
     input <- getContents
     let weights = map read $ lines input
-        a = (sum weights) `div` 3
-        partitions = concatMap permutations . filter (all (==a) . (map sum)) $ partitionInN 3 weights
-        balanced = filter isBalanced $ partitions
-    print $ length weights
-    print $ length partitions
-    print $ minimumEntanglement $ shortestFirstGroupsOnly balanced
+        w1 = (sum weights) `div` 3
+        w2 = (sum weights) `div` 4
+    print $ solve w1 weights
+    print $ solve w2 weights

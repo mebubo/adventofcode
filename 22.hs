@@ -1,4 +1,4 @@
-import Text.Show.Functions
+import Text.Show.Functions()
 
 data SpellItem = SpellItem Int Int SpellKind deriving Show
 
@@ -8,6 +8,7 @@ data SpellKind = MagicMissile Int
                | Poison Int
                | Recharge Int deriving Show
 
+kindFromItem :: SpellItem -> SpellKind
 kindFromItem (SpellItem _ _ k) = k
 
 sameSpell :: SpellKind -> SpellKind -> Bool
@@ -26,46 +27,52 @@ spells = [ SpellItem 1 53 $ MagicMissile 4
          , SpellItem 5 229 $ Recharge 101
          ]
 
-data State = State { hp :: Int, mana :: Int, bossHp:: Int, spentMana :: Int, turnNumber :: Int, effects :: [Effect], spellsCast :: [SpellKind]} deriving Show
+data State = State { hp :: Int
+                   , mana :: Int
+                   , bossHp:: Int
+                   , spentMana :: Int
+                   , turnNumber :: Int
+                   , effects :: [Effect]
+                   , spellsCast :: [SpellKind]
+                   } deriving Show
 
 data Effect = Effect SpellKind Int (State -> State) deriving Show
 
 type Spell = (State -> State)
 
 createSpell :: SpellKind -> Spell
-createSpell (MagicMissile x) = \s -> s { bossHp = (bossHp s) - x }
-createSpell (Drain x) = \s -> s { hp = (hp s) + x, bossHp = (bossHp s) - x }
-createSpell (Shield x) = id
-createSpell (Poison x) = \s -> s { bossHp = (bossHp s) - x }
-createSpell (Recharge x) = \s -> s { mana = (mana s) + x }
+createSpell (MagicMissile x) = \s -> s { bossHp = bossHp s - x }
+createSpell (Drain x) = \s -> s { hp = hp s + x, bossHp = bossHp s - x }
+createSpell (Shield _) = id
+createSpell (Poison x) = \s -> s { bossHp = bossHp s - x }
+createSpell (Recharge x) = \s -> s { mana = mana s + x }
 
 createEffect :: SpellItem -> State -> State
-createEffect (SpellItem t c k) s = s {mana = (mana s) - c,
-                                      spentMana = (spentMana s) + c,
-                                      effects = Effect k t (createSpell k) : (effects s)}
+createEffect (SpellItem t c k) s = s {mana = mana s - c,
+                                      spentMana = spentMana s + c,
+                                      effects = Effect k t (createSpell k) : effects s}
 
 bossTurn :: Bool -> State -> State
-bossTurn hard s = s { turnNumber = (turnNumber s) + 1,
-                 hp = (hp s) - bossDamage - hardDamage }
-             where diff = damage - (armor s)
+bossTurn hard s = s { turnNumber = turnNumber s + 1,
+                 hp = hp s - bossDamage - hardDamage }
+             where diff = damage - armor s
                    bossDamage = if diff < 1 then 1 else diff
                    hardDamage = if hard then 1 else 0
 
 playerTurn :: SpellItem -> State -> State
 playerTurn i s =
   let newState = createEffect i s
-  in newState {turnNumber = (turnNumber s) + 1
+  in newState {turnNumber = turnNumber s + 1
               , spellsCast = kindFromItem i : spellsCast s}
 
-applyEffect :: Effect -> State -> State
-applyEffect (Effect _ _ f) = f
+applyEffect :: State -> Effect -> State
+applyEffect s (Effect _ _ f) = f s
 
-applyEffects :: [Effect] -> State -> State
-applyEffects [] s = s
-applyEffects (e:es) s = applyEffects es (applyEffect e s)
+applyEffects :: State -> [Effect] -> State
+applyEffects = foldl applyEffect
 
 applyAllEffects :: State -> State
-applyAllEffects s = applyEffects (effects s) s
+applyAllEffects s = applyEffects s (effects s)
 
 expireEffect :: Effect -> Effect
 expireEffect (Effect k t f) = Effect k (t-1) f
@@ -94,25 +101,28 @@ armor s = if shieldIsInEffects (effects s) then 7 else 0
     isShield _ = False
 
 playerTurns :: State -> [State]
-playerTurns s = [playerTurn i s | i <- spells, not $ any (sameSpell (kindFromItem i)) (map kindFromEffect (effects s)), canAfford i]
+playerTurns s = [playerTurn i s
+                | i <- spells
+                , not $ any (sameSpell (kindFromItem i)) (map kindFromEffect (effects s))
+                , canAfford i]
                 where kindFromEffect (Effect k _ _) = k
-                      canAfford (SpellItem _ c _) = (mana s) >= c
+                      canAfford (SpellItem _ c _) = mana s >= c
 
 turns :: Bool -> State -> [State]
 turns hard s = if isPlayerTurn then playerTurns s else [bossTurn hard s]
-  where isPlayerTurn = (turnNumber s) `mod` 2 == 0
+  where isPlayerTurn = turnNumber s `mod` 2 == 0
 
 playerWon :: State -> Bool
-playerWon s = (bossHp s) <= 0
+playerWon s = bossHp s <= 0
 
 bossWon :: State -> Bool
-bossWon s = (hp s) <= 0
+bossWon s = hp s <= 0
 
 gameOver :: State -> Bool
 gameOver s = bossWon s || playerWon s
 
 step :: Bool -> [State] -> [State]
-step hard ss = concatMap turnIfNotOver $ map applyIfNotOver ss
+step hard = concatMap (turnIfNotOver . applyIfNotOver)
   where turnIfNotOver s = if gameOver s then [s] else turns hard s
         applyIfNotOver s = if gameOver s then s else allEffects s
 
@@ -131,8 +141,10 @@ outcomes g s = g [s] !! 20
 result :: Game -> State -> Int
 result g = minimum . map spentMana . filter playerWon . outcomes g
 
+damage :: Int
 damage = 9
 
+main :: IO ()
 main = do
   print $ result game $ State 50 500 51 0 0 [] []
   print $ result hardGame $ State 49 500 51 0 0 [] []

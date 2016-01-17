@@ -44,11 +44,12 @@ createEffect (SpellItem t c k) s = s {mana = (mana s) - c,
                                       spentMana = (spentMana s) + c,
                                       effects = Effect k t (createSpell k) : (effects s)}
 
-bossTurn :: State -> State
-bossTurn s = s { turnNumber = (turnNumber s) + 1,
-                 hp = (hp s) - bossDamage }
+bossTurn :: Bool -> State -> State
+bossTurn hard s = s { turnNumber = (turnNumber s) + 1,
+                 hp = (hp s) - bossDamage - hardDamage }
              where diff = damage - (armor s)
                    bossDamage = if diff < 1 then 1 else diff
+                   hardDamage = if hard then 1 else 0
 
 playerTurn :: SpellItem -> State -> State
 playerTurn i s =
@@ -97,8 +98,8 @@ playerTurns s = [playerTurn i s | i <- spells, not $ any (sameSpell (kindFromIte
                 where kindFromEffect (Effect k _ _) = k
                       canAfford (SpellItem _ c _) = (mana s) >= c
 
-turns :: State -> [State]
-turns s = if isPlayerTurn then playerTurns s else [bossTurn s]
+turns :: Bool -> State -> [State]
+turns hard s = if isPlayerTurn then playerTurns s else [bossTurn hard s]
   where isPlayerTurn = (turnNumber s) `mod` 2 == 0
 
 playerWon :: State -> Bool
@@ -110,24 +111,28 @@ bossWon s = (hp s) <= 0
 gameOver :: State -> Bool
 gameOver s = bossWon s || playerWon s
 
-step :: [State] -> [State]
-step ss = concatMap turnIfNotOver $ map applyIfNotOver ss
-  where turnIfNotOver s = if gameOver s then [s] else turns s
+step :: Bool -> [State] -> [State]
+step hard ss = concatMap turnIfNotOver $ map applyIfNotOver ss
+  where turnIfNotOver s = if gameOver s then [s] else turns hard s
         applyIfNotOver s = if gameOver s then s else allEffects s
 
-game :: [State] -> [[State]]
-game is = is : game (step is)
+type Game = [State] -> [[State]]
 
-outcomes :: State -> [State]
--- outcomes s = head $ dropWhile (any (not . gameOver)) (game [s])
-outcomes s = game [s] !! 20
+game :: Game
+game is = is : game (step False is)
 
-result :: State -> Int
-result = minimum . map spentMana . filter playerWon . outcomes
+hardGame :: Game
+hardGame is = is : hardGame (step True is)
+
+outcomes :: Game -> State -> [State]
+-- outcomes game s = head $ dropWhile (any (not . gameOver)) (game [s])
+outcomes g s = g [s] !! 20
+
+result :: Game -> State -> Int
+result g = minimum . map spentMana . filter playerWon . outcomes g
 
 damage = 9
 
 main = do
-  print $ result $ State 50 500 51 0 0 [] []
-
-
+  print $ result game $ State 50 500 51 0 0 [] []
+  print $ result hardGame $ State 49 500 51 0 0 [] []

@@ -1,5 +1,3 @@
-module Day25 where
-
 import Text.Regex.Posix
 
 nextCoord :: (Int, Int) -> (Int, Int)
@@ -31,4 +29,4 @@ valueForCoord3 (r, c) = iter $ zip cellOrder values
 main = do
   input <- getContents
   let [r, c] = map (read::(String -> Int)) . getAllTextMatches $ input =~ "[[:digit:]]+"
-  print $ valueForCoord3 (r, c)
+  print $ valueForCoord (r, c)

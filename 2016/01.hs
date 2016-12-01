@@ -58,6 +58,5 @@ start = Coord 0 0
 initialState = State start North
 
 main :: IO ()
-main = do
-    input <- getContents
-    print $ distance start $ getCoord $ travel initialState $ readCommands input
+main = getContents >>=
+    print . distance start . getCoord . travel initialState . readCommands

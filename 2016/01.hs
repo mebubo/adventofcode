@@ -2,18 +2,22 @@ module Main where
 
 import Prelude hiding (Left, Right)
 import Data.List.Split
+import Data.List (tails)
 
-data Coord = Coord Int Int
+data Coord = Coord Int Int deriving Eq
 
-data Heading = North | East | South | West deriving Enum
+data Heading = North | East | South | West deriving (Enum, Show)
 
-data State = State Coord Heading
+data State = State Coord Heading deriving Show
 
-data Command = Command Turn Steps
+data Command = Command Turn Steps deriving Show
 
-data Turn = Left | Right
+data Turn = Left | Right deriving Show
 
 type Steps = Int
+
+instance Show Coord
+    where show (Coord x y) = "(" ++ show x ++ ", " ++ show y ++ ")"
 
 turn :: Turn -> Heading -> Heading
 turn Left North = West
@@ -57,6 +61,27 @@ start = Coord 0 0
 
 initialState = State start North
 
+path :: State -> [Command] -> [Coord]
+path s = map getCoord . scanl step s
+
+fill :: Coord -> Coord -> [Coord]
+fill (Coord x1 y1) (Coord x2 y2) = [Coord x y | x <- range x1 x2, y <- range y1 y2]
+    where
+        range a b | a <= b = [a..b]
+                  | otherwise = reverse [b..a]
+
+expand :: [Coord] -> [Coord]
+expand [x] = [x]
+expand cs@(_:cs') = concat $ map tail $ zipWith fill cs cs'
+
+firstVisitedTwice :: [Coord] -> Coord
+firstVisitedTwice = head . head . dropWhile (not . headInTail) . tails
+    where
+        headInTail (h:t) = h `elem` t
+
 main :: IO ()
-main = getContents >>=
-    print . distance start . getCoord . travel initialState . readCommands
+main = do
+    input <- getContents
+    let commands = readCommands input
+    print . distance start . getCoord . travel initialState $ commands
+    print . distance start . firstVisitedTwice . expand . path initialState $ commands

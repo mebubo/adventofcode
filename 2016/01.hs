@@ -40,9 +40,6 @@ step (State c h) (Command t s) =
             newHeading = turn t h
             newCoord = move (State c newHeading) s
 
-travel :: State -> [Command] -> State
-travel = foldl step
-
 readCommand :: String -> Command
 readCommand ('L':ds) = Command Left (read ds)
 readCommand ('R':ds) = Command Right (read ds)
@@ -83,5 +80,6 @@ main :: IO ()
 main = do
     input <- getContents
     let commands = readCommands input
-    print . distance start . getCoord . travel initialState $ commands
-    print . distance start . firstVisitedTwice . expand . path initialState $ commands
+    let p = path initialState commands
+    print . distance start . last $ p
+    print . distance start . firstVisitedTwice . expand $ p

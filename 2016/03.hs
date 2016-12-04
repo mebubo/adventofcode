@@ -8,18 +8,24 @@ data Triangle = T Int Int Int
 isValid :: Triangle -> Bool
 isValid (T a b c) = a + b > c && b + c > a && c + a > b
 
-readTriangle :: String -> Triangle
-readTriangle = getTriangle . map read . words
-
 getTriangle :: [Int] -> Triangle
 getTriangle (a:b:c:_) = T a b c
 
+getTriangles :: [Int] -> [Triangle]
+getTriangles = map getTriangle . chunksOf 3
+
+values1 :: [String] -> [Int]
+values1 = map read . words . concat
+
+values2 :: [String] -> [Int]
+values2 = concat . transpose . map ((map read) . words)
+
+countValidTriangles :: [Triangle] -> Int
+countValidTriangles = length . filter isValid
+
 main :: IO ()
 main = do
-    input <- getContents
-    let triangles = map readTriangle . lines $ input
-    print . length . filter isValid $ triangles
-    let values = map words . lines $ input
-    let triplets = chunksOf 3 . concat . transpose $ values
-    let triangles2 = map (getTriangle . map read) $ triplets
-    print . length . filter isValid $ triangles2
+    input <- fmap lines getContents
+    p . values1 $ input
+    p . values2 $ input
+    where p = print . countValidTriangles . getTriangles

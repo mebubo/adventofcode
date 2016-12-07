@@ -50,4 +50,5 @@ main = do
     let rooms = map readRoom $ input
     print . sumSectorIds . filter isValidRoom $ rooms
     -- _ <- sequence . fmap print . map decodeName $ rooms
+    -- mapM_ print . map decodeName $ rooms
     print . sectorId . findNorthPole $ rooms

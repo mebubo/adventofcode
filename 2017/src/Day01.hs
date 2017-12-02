@@ -1,4 +1,4 @@
-module Main where
+module Day01 where
 
 digits :: String -> [Int]
 digits = map (read . pure)

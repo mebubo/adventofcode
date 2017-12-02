@@ -3,7 +3,12 @@ name: adventofcode2017
 dependencies:
 - base
 
+library:
+  source-dirs: src
+
 executables:
-  day01:
-    source-dirs: src
-    main: Day01.hs
+  adventofcode2017:
+    source-dirs: app
+    main: Main.hs
+    dependencies:
+      - adventofcode2017

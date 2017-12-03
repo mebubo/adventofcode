@@ -1,34 +1,26 @@
 module Day03 where
 
 lengths :: [Int]
-lengths = [1..] >>= \x -> [x, x]
-
-data Dir = E | N | W | S deriving (Show, Enum)
-
-nextDir :: Dir -> Dir
-nextDir S = E
-nextDir x = succ x
-
-type State = (Int, Dir)
-
-states :: [State]
-states = zip lengths (iterate nextDir E)
+lengths = [1..] >>= replicate 2
 
 type Coord = (Int, Int)
+type CoordTransform = (Int -> Int, Int -> Int)
 
-inc :: State -> [Coord]
-inc (n, E) = replicate n (1, 0)
-inc (n, N) = replicate n (0, 1)
-inc (n, W) = replicate n (-1, 0)
-inc (n, S) = replicate n (0, -1)
+transforms :: [CoordTransform]
+transforms =
+    [ ((+1), id)
+    , (id, (+1))
+    , ((+(-1)), id)
+    , (id, (+(-1)))
+    ]
 
-incs :: [Coord]
-incs = states >>= inc
+allTransforms :: [CoordTransform]
+allTransforms = concat $ zipWith replicate lengths (cycle transforms)
 
 coords :: [Coord]
-coords = scanl f (0, 0) incs
+coords = scanl f (0, 0) allTransforms
     where
-        f (x, y) (dx, dy) = (x + dx, y + dy)
+        f (x, y) (fx, fy) = (fx x, fy y)
 
 manhattanDistance :: Coord -> Int
 manhattanDistance (x, y) = abs x + abs y
@@ -41,4 +33,5 @@ input1 = 265149
 
 main :: IO ()
 main = do
+    print $ take 20 coords
     print $ distanceToNth input1

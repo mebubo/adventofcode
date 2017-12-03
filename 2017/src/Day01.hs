@@ -4,7 +4,7 @@ digits :: String -> [Int]
 digits = map (read . pure)
 
 allPairsOffsetBy :: Int -> [a] -> [(a, a)]
-allPairsOffsetBy n xs = take (length xs) $ zipAdj $ xs ++ xs
+allPairsOffsetBy n xs = take (length xs) $ zipAdj $ cycle xs
     where zipAdj = zip <*> drop n
 
 allNeighbours :: [a] -> [(a, a)]

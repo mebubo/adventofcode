@@ -2,6 +2,7 @@ name: adventofcode2017
 
 dependencies:
 - base
+- array
 
 library:
   source-dirs: src

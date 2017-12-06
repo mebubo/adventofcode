@@ -3,6 +3,7 @@ name: adventofcode2017
 dependencies:
 - base
 - array
+- split
 
 library:
   source-dirs: src

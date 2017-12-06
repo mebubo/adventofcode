@@ -32,14 +32,15 @@ heads = inits . states
 findRepeat :: Input -> [[Int]]
 findRepeat = head . filter (\x -> last x `elem` init x) . tail . heads
 
-solve1:: Input -> Result
-solve1 = (+(-1)) . length . findRepeat
+solve1:: [[Int]] -> Result
+solve1 = (+(-1)) . length
 
-solve2:: Input -> Result
-solve2 = (+(-1)) . length . head . filter (\x -> head x == last x) . tails . findRepeat
+solve2:: [[Int]] -> Result
+solve2 = (+(-1)) . length . head . filter (\x -> head x == last x) . tails
 
 main :: IO ()
 main = do
     i <- readInput
-    print $ solve1 i
-    print $ solve2 i
+    let r = findRepeat i
+    print $ solve1 r
+    print $ solve2 r

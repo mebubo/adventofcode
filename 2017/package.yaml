@@ -4,6 +4,7 @@ dependencies:
 - base
 - array
 - split
+- parsec
 
 library:
   source-dirs: src

@@ -5,6 +5,7 @@ dependencies:
 - array
 - split
 - parsec
+- containers
 
 library:
   source-dirs: src

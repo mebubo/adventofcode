@@ -1,6 +1,9 @@
 module Day03 where
 
-import Data.Monoid (Sum, getSum, (<>))
+import Data.Monoid (Sum(Sum), getSum, (<>))
+import qualified Data.Map as M
+import Control.Monad.State.Lazy (State, get, put, evalState, runState)
+import Data.Maybe (mapMaybe)
 
 lengths :: [Int]
 lengths = [1..] >>= replicate 2
@@ -27,9 +30,31 @@ manhattanDistance (x, y) = getSum $ abs x + abs y
 distanceToNth :: Int -> Int
 distanceToNth n = manhattanDistance $ coords !! (n - 1)
 
-input1 :: Int
-input1 = 265149
+type SpiralMap = M.Map Coord Int
+type SpiralState = State SpiralMap Int
+
+stateForCoord :: Coord -> SpiralState
+stateForCoord coord = do
+    m <- get
+    let n = sumAdjacent coord m
+    put $ M.insert coord n m
+    return n
+
+sumAdjacent :: Coord -> SpiralMap -> Int
+sumAdjacent (0, 0) _ = 1
+sumAdjacent coord m = sum . mapMaybe (`M.lookup` m) $ adjs
+    where
+        adjs :: [Coord]
+        adjs = [coord <> (a, b) | a <- range, b <- range, a /= 0 || b /= 0]
+        range = Sum <$> [-1..1]
+
+values :: [Coord] -> State SpiralMap [Int]
+values = traverse stateForCoord
+
+input :: Int
+input = 265149
 
 main :: IO ()
 main = do
-    print $ distanceToNth input1
+    print $ distanceToNth input
+    print $ head . filter (> input) $ evalState (values coords) M.empty

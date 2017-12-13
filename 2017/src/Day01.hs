@@ -14,7 +14,7 @@ allHalfwayNeighbours :: [a] -> [(a, a)]
 allHalfwayNeighbours xs = allPairsOffsetBy (length xs `div` 2) xs
 
 same :: Eq a => (a, a) -> Bool
-same (a, b) = a == b
+same = uncurry (==)
 
 sumSame :: (Num a, Eq a) => [(a, a)] -> a
 sumSame = sum . map fst . filter same

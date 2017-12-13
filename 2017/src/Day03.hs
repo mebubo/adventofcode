@@ -1,29 +1,28 @@
 module Day03 where
 
+import Data.Monoid (Sum, getSum, (<>))
+
 lengths :: [Int]
 lengths = [1..] >>= replicate 2
 
-type Coord = (Int, Int)
-type CoordTransform = (Int -> Int, Int -> Int)
+type Coord = (Sum Int, Sum Int)
 
-transforms :: [CoordTransform]
+transforms :: [Coord]
 transforms =
-    [ ((+1), id)
-    , (id, (+1))
-    , ((+(-1)), id)
-    , (id, (+(-1)))
+    [ (1, 0)
+    , (0, 1)
+    , (-1, 0)
+    , (0, -1)
     ]
 
-allTransforms :: [CoordTransform]
+allTransforms :: [Coord]
 allTransforms = concat $ zipWith replicate lengths (cycle transforms)
 
 coords :: [Coord]
-coords = scanl f (0, 0) allTransforms
-    where
-        f (x, y) (fx, fy) = (fx x, fy y)
+coords = scanl (<>) (0, 0) allTransforms
 
 manhattanDistance :: Coord -> Int
-manhattanDistance (x, y) = abs x + abs y
+manhattanDistance (x, y) = getSum $ abs x + abs y
 
 distanceToNth :: Int -> Int
 distanceToNth n = manhattanDistance $ coords !! (n - 1)
@@ -33,5 +32,4 @@ input1 = 265149
 
 main :: IO ()
 main = do
-    print $ take 20 coords
     print $ distanceToNth input1

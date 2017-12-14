@@ -16,9 +16,10 @@ data Condition = Condition Name Operator Value deriving Show
 
 type Name = String
 type Value = Int
+
 data IncDec = Inc | Dec deriving (Eq, Show)
-data Operator =
-    LT
+data Operator
+    = LT
     | GT
     | LE
     | GE
@@ -100,7 +101,7 @@ execInstructions :: [Instruction] -> St [Value]
 execInstructions = traverse execInstruction
 
 maxValue :: St Value
-maxValue = maximum . M.elems <$> S.get
+maxValue = maximum <$> S.get
 
 main :: IO ()
 main = do

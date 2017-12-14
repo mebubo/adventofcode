@@ -90,14 +90,14 @@ evalCondition (Condition n o v) = do
                 LT -> (<)
                 GT -> (>)
 
-execInstruction :: Instruction -> St ()
-execInstruction (Instruction u c) = evalCondition c >>= f
+execInstruction :: Instruction -> St Value
+execInstruction (Instruction u c) = (evalCondition c >>= f) >> maxValue
     where
         f True = performUpdate u
         f False = pure ()
 
-execInstructions :: [Instruction] -> St ()
-execInstructions = traverse_ execInstruction
+execInstructions :: [Instruction] -> St [Value]
+execInstructions = traverse execInstruction
 
 maxValue :: St Value
 maxValue = maximum . M.elems <$> S.get
@@ -106,4 +106,6 @@ main :: IO ()
 main = do
     c <- readFile "input/08.input"
     let Right is = parse instructions "" c
-    print $ S.evalState (execInstructions is >> maxValue) M.empty
+        maxes = S.evalState (execInstructions is) M.empty
+    print $ last maxes
+    print $ maximum maxes

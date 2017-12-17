@@ -22,9 +22,8 @@ getInput2 = (ord <$>) . filter (/= '\n')
 type State = ([Int], Int, Int)
 
 step :: Int -> State -> State
-step n (xs, pos, skip) = (xs', pos', skip')
+step n (xs, pos, skip) = (xs', pos', skip + 1)
     where
-        skip' = skip + 1
         pos' = (pos + n + skip) `mod` length xs
         xs' = update pos n xs
 
@@ -50,7 +49,6 @@ suffix = [17, 31, 73, 47, 23]
 
 steps2 :: [Int] -> State -> State
 steps2 = steps . concat . replicate 64 . (++ suffix)
-
 
 postProcess :: [Int] -> String
 postProcess xs = toString =<< xorAll <$> chunksOf 16 xs

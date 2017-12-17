@@ -11,21 +11,14 @@ type Parser = Parsec () String
 type Garbage = Maybe String
 
 garbage :: Parser Garbage
-garbage = do
-    char '<'
-    x <- catMaybes <$> many (escaped <|> nonClosed)
-    char '>'
-    return $ Just x
+garbage = char '<' *> between <* char '>'
     where
+        between = Just . catMaybes <$> many (escaped <|> nonClosed)
         escaped = Nothing <$ (char '!' *> anyChar)
         nonClosed = Just <$> noneOf ">"
 
 groups :: Parser (Forest Garbage)
-groups = do
-    char '{'
-    gs <- group `sepBy` char ','
-    char '}'
-    return gs
+groups = char '{' *> group `sepBy` char ',' <* char '}'
 
 group :: Parser (Tree Garbage)
 group = grps <|> garb

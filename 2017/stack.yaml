@@ -2,3 +2,6 @@ resolver: nightly-2017-12-01
 
 packages:
 - .
+
+extra-deps:
+- grid-7.8.9

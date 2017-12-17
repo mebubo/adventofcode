@@ -9,6 +9,7 @@ dependencies:
 - mtl
 - megaparsec
 - vector
+- grid
 
 library:
   source-dirs: src

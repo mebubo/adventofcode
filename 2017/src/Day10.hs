@@ -1,7 +1,7 @@
 module Day10 where
 
 import Data.List.Split (wordsBy, chunksOf)
-import Data.Vector (toList, fromList, (//))
+import Data.Vector (toList, fromList, (//), (!))
 import Data.Char (ord)
 import Data.Bits (xor)
 import Control.Monad (join)
@@ -26,15 +26,16 @@ step n (xs, pos, skip) = (xs', pos', skip')
     where
         skip' = skip + 1
         pos' = (pos + n + skip) `mod` length xs
-        xs' = update xs pos n
+        xs' = update pos n xs
 
-update :: [a] -> Int -> Int -> [a]
-update as pos siz = toList . f . fromList $ as
+update :: Int -> Int -> [a] -> [a]
+update pos siz = toList . f . fromList
     where
         f vs = vs // zip ixs xs
-        len = length as
-        ixs = (`mod` len) <$> [pos..pos + siz - 1]
-        xs = reverse $ (as !!) <$> ixs
+            where
+                len = length vs
+                ixs = (`mod` len) <$> [pos .. pos + siz - 1]
+                xs = reverse $ (vs !) <$> ixs
 
 steps :: [Int] -> State -> State
 steps ns = foldl (flip (.)) id $ step <$> ns

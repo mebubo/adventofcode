@@ -41,8 +41,24 @@ addAll (xs, curr) m | S.null xs = (xs, curr)
         x = head $ S.toList xs
         xs' = ys `S.union` (x `S.delete` xs)
 
+findComponent :: Input -> Int -> S.Set Int
+findComponent m n = snd $ addAll (S.singleton n, S.empty) m
+
+findComponents :: Input -> [S.Set Int]
+findComponents m = go (M.keysSet m) []
+    where
+        go :: S.Set Int -> [S.Set Int] -> [S.Set Int]
+        go xs curr | S.null xs = curr
+                   | otherwise = go xs' curr'
+            where
+                x = head $ S.toList xs
+                curr' = findComponent m x : curr
+                xs' = xs `S.difference` merge curr'
+                merge = foldr S.union S.empty
+
 main :: IO ()
 main = do
     i <- readFile "input/12.input"
     let Right m = parse input "" i
-    print . length . snd $ addAll (S.singleton 0, S.empty) m
+    print . length $ findComponent m 0
+    print . length $ findComponents m

@@ -14,6 +14,7 @@ import qualified Day09
 import qualified Day10
 import qualified Day11
 import qualified Day12
+import qualified Day20
 
 mains :: [IO ()]
 mains =
@@ -29,6 +30,7 @@ mains =
     , Day10.main
     , Day11.main
     , Day12.main
+    , Day20.main
     ]
 
 main :: IO ()

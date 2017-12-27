@@ -26,6 +26,7 @@ select (x:xs) = (x, xs) : (insert x <$> select xs)
 
 type State = StateT [Component] [] Int
 
+-- taken from https://github.com/mstksg/advent-of-code-2017/blob/master/src/AOC2017/Day24.hs
 bridge :: Int -> State
 bridge a = do
     (x, y) <- StateT select
@@ -40,4 +41,7 @@ main = do
     i <- readInput
     print i
     print $ select [1, 2, 3, 4]
-    print $ maximum $ evalStateT (bridge 0) i
+    let s = runStateT (bridge 0) i
+    print . maximum . (fst <$>) $ s
+    let minLen = minimum $ ((length . snd) <$>) s
+    print . maximum . (fst <$>) . filter ((==minLen) . length . snd) $ s

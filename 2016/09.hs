@@ -75,13 +75,12 @@ data Entry = S String | M Int Int String deriving Show
 
 entryToString :: Entry -> String
 entryToString (S s) = s
-entryToString (M a b s) = concat $ replicate b s
+entryToString (M _ b s) = concat $ replicate b s
 
 main :: IO ()
 main = do
     input <- getContents
     let stripped = filter (/='\n') input
     let es = runParser entries stripped
-    let str = fmap (concat . map entryToString . fst) es
-    print $ fmap length str
+    print fmap (length . concat . map entryToString . fst) es
 

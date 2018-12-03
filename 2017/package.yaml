@@ -10,6 +10,8 @@ dependencies:
 - megaparsec
 - vector
 - grid
+- pointedlist
+- operational
 
 library:
   source-dirs: src

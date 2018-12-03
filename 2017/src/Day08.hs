@@ -2,7 +2,7 @@ module Day08 where
 
 import Text.Megaparsec
 import Text.Megaparsec.Char
-import Control.Applicative (many, some)
+-- import Control.Applicative (many, some)
 import Data.Maybe (maybeToList)
 import Prelude hiding (LT, GT, EQ)
 import qualified Control.Monad.State as S

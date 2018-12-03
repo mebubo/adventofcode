@@ -1,0 +1,14 @@
+name: adventofcode2018
+
+dependencies:
+- base
+
+library:
+  source-dirs: src
+
+executables:
+  aoc2018:
+    source-dirs: app
+    main: Main.hs
+    dependencies:
+      - adventofcode2018

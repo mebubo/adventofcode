@@ -18,15 +18,16 @@ def part1(input: list[str]) -> int:
     return sum(hash_str(s) for s in input)
 
 @dataclass
-class Add:
+class Instruction:
     label: str
+
+@dataclass
+class Add(Instruction):
     value: int
 
 @dataclass
-class Remove:
-    label: str
-
-type Instruction = Add | Remove
+class Remove(Instruction):
+    pass
 
 def parse_instruction(s: str) -> Instruction:
     if '-' in s:
@@ -36,12 +37,11 @@ def parse_instruction(s: str) -> Instruction:
         return Add(l, int(v))
 
 def perform_instruction(boxes: dict[int, dict[str, int]], instruction: Instruction) -> None:
+    box = boxes[hash_str(instruction.label)]
     match instruction:
         case Add(label, value):
-            box = boxes[hash_str(label)]
             box[label] = value
         case Remove(label):
-            box = boxes[hash_str(label)]
             if label in box:
                 del box[label]
 

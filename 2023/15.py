@@ -48,7 +48,7 @@ def perform_instruction(boxes: dict[int, dict[str, int]], instruction: Instructi
 def focusing_power(boxes: dict[int, dict[str, int]]) -> int:
     return sum(f * (b + 1) * (s + 1)
                for b in range(256)
-               for s, (_, f) in enumerate(boxes[b].items()))
+               for s, f in enumerate(boxes[b].values()))
 
 def part2(input: list[str]) -> int:
     boxes: dict[int, dict[str, int]] = ddict(odict)

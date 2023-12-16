@@ -42,8 +42,7 @@ def perform_instruction(boxes: dict[int, dict[str, int]], instruction: Instructi
         case Add(label, value):
             box[label] = value
         case Remove(label):
-            if label in box:
-                del box[label]
+            box.pop(label, None)
 
 def focusing_power(boxes: dict[int, dict[str, int]]) -> int:
     return sum(f * (b + 1) * (s + 1)

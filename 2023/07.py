@@ -47,8 +47,7 @@ def card_type_joker(s: str) -> list[int]:
     joker_count = s.count("J")
     without_joker = s.replace("J", "")
     t = card_type(without_joker) if without_joker else [0]
-    t[0] += joker_count
-    return t
+    return [t[0] + joker_count] + t[1:]
 
 def type_key(card: str, to_card_type) -> int:
     return TYPE_ORDER[tuple(to_card_type(card))]
